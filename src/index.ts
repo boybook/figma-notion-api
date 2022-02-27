@@ -26,7 +26,8 @@ router.use((req, res, next) => {
             object: 'error',
             status: 400,
             code: 'bad request',
-            message: 'Head missing (figma_token, notion_token, notion_database)'
+            message: 'Head missing (figma_token, notion_token, notion_database)',
+            header: req.headers
         });
     }
     // set the CORS method headers
