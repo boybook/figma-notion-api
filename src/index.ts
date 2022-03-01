@@ -18,7 +18,7 @@ router.use((req, res, next) => {
     // set the CORS policy
     res.header('Access-Control-Allow-Origin', '*');
     // set the CORS headers
-    res.header('Access-Control-Allow-Headers', 'origin, X-Requested-With,Content-Type,Accept, Authorization, figma_token, notion_token, notion_database');
+    res.header('Access-Control-Allow-Headers', 'origin, X-Requested-With, Content-Type, Accept, Authorization, figma_token, notion_token, notion_database');
     res.header('Content-Type', 'application/json');
 
     // set the CORS method headers

@@ -215,4 +215,40 @@ const pushNode = async (req: Request, res: Response, next: NextFunction) => {
     }
 };
 
-export default { getNode, pushNode };
+const deleteNode = async (req: Request, res: Response, next: NextFunction) => {
+    if (!req.params['file'] || !req.params['node']) {
+        return res.status(400).json({
+            object: 'error',
+            status: 400,
+            code: 'bad request',
+            message: 'Missing params (file, node)'
+        });
+    }
+    const notion = new Client({
+        auth: req.header("notion_token")
+    });
+    try {
+        const nodes = await getNode0(req.header("notion_token"), req.header("notion_database"), req.params['file'], req.params['node']);
+        if (nodes.length > 0) {
+            for (let node of nodes) {
+                await notion.blocks.delete({
+                    block_id: nodes[0].id
+                });
+            }
+            return res.status(200).json({
+                code: 200,
+                message: 'Deleted ' + nodes.length + 'nodes'
+            });
+        } else {
+            return res.status(200).json({
+                code: 200,
+                message: 'Nothing to delete.'
+            });
+        }
+    } catch (e) {
+        console.error(e);
+        return res.status(e.status ? e.status : 500).send(e.body);
+    }
+};
+
+export default { getNode, pushNode, deleteNode };
