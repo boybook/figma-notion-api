@@ -92,7 +92,7 @@ const pushNode = async (req: Request, res: Response, next: NextFunction) => {
         const imageData = await figma.getImage(req.params['file'], {
             ids: req.params['node'],
             format: "png",
-            scale: 2
+            scale: 1
         });
 
         const notion = new Client({
@@ -237,7 +237,7 @@ const deleteNode = async (req: Request, res: Response, next: NextFunction) => {
             }
             return res.status(200).json({
                 code: 200,
-                message: 'Deleted ' + nodes.length + 'nodes'
+                message: 'Deleted ' + nodes.length + ' nodes.'
             });
         } else {
             return res.status(200).json({
