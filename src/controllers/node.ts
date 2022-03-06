@@ -99,9 +99,10 @@ const pushNode = async (req: Request, res: Response, next: NextFunction) => {
                 scale: 1
             });
             cover = imageData.images[decodeURI(req.params['node'])];
-            coverMin = cover + "?x-oss-process=style/min"
+            coverMin = cover;
         } else {
             cover = req.body['cover'];
+            coverMin = cover + "?x-oss-process=style/min"
         }
 
         const notion = new Client({
