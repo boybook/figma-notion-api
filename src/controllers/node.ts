@@ -87,6 +87,7 @@ const pushNode = async (req: Request, res: Response, next: NextFunction) => {
         const url = 'https://www.figma.com/file/' + req.params['file'] + '/?node-id=' + encodeURIComponent(req.params['node']);
 
         let cover: string;
+        let coverMin: string;
         if (!req.body['cover']) {
             const figma = new Figma.Api({
                 personalAccessToken: req.header("figma_token"),
@@ -98,6 +99,7 @@ const pushNode = async (req: Request, res: Response, next: NextFunction) => {
                 scale: 1
             });
             cover = imageData.images[decodeURI(req.params['node'])];
+            coverMin = cover + "?x-oss-process=style/min"
         } else {
             cover = req.body['cover'];
         }
@@ -138,7 +140,7 @@ const pushNode = async (req: Request, res: Response, next: NextFunction) => {
                     cover: {
                         type: "external",
                         external: {
-                            url: cover
+                            url: coverMin
                         }
                     },
                     properties: properties
