@@ -186,7 +186,7 @@ const pushNode = async (req: Request, res: Response, next: NextFunction) => {
                 cover: {
                     type: "external",
                     external: {
-                        url: cover
+                        url: coverMin
                     }
                 },
                 properties: properties,
