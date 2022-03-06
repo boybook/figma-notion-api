@@ -3,6 +3,7 @@ import express, { Express } from 'express';
 import morgan from 'morgan';
 import routesTags from './routes/tags';
 import routesNode from './routes/node';
+import routesDatabase from './routes/database';
 
 const router: Express = express();
 
@@ -43,6 +44,7 @@ router.use((req, res, next) => {
 /** Routes */
 router.use('/tags', routesTags);
 router.use('/node', routesNode);
+router.use('/database', routesDatabase);
 
 /** Error handling */
 router.use((req, res, next) => {
