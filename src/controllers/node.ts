@@ -159,7 +159,7 @@ const pushNode = async (req: Request, res: Response, next: NextFunction) => {
                                     url: 'https://www.figma.com/embed?embed_host=notion&url=' + encodeURIComponent(url)
                                 }
                             });
-                        } else if (child['embed']['url'].includes("figma-alpha-api")) {
+                        } else if (child['embed']['url'].includes("amazonaws.com")) {
                             await notion.blocks.update({
                                 block_id: child.id,
                                 embed: {
