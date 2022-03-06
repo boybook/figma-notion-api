@@ -6,5 +6,6 @@ const router = express.Router();
 router.get('/get/:file/:node', controller.getNode);
 router.post('/push/:file/:node', controller.pushNode);
 router.delete('/delete/:file/:node', controller.deleteNode);
+router.patch('/patch', controller.patchAll);
 
 export default router;

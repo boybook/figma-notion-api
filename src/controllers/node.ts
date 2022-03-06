@@ -86,20 +86,21 @@ const pushNode = async (req: Request, res: Response, next: NextFunction) => {
         const nodes = await getNode0(req.header("notion_token"), req.header("notion_database"), req.params['file'], req.params['node']);
         const url = 'https://www.figma.com/file/' + req.params['file'] + '/?node-id=' + encodeURIComponent(req.params['node']);
 
-        const figma = new Figma.Api({
-            personalAccessToken: req.header("figma_token"),
-        });
-        const nodeData = await figma.getFileNodes(req.params['file'], [req.params['node']]);
-        let width = 0;
-        for (let nodeDataKey in nodeData) {
-            width = nodeData[nodeDataKey].absoluteBoundingBox.width;
-            break;
+        let cover: string;
+        if (!req.body['cover']) {
+            const figma = new Figma.Api({
+                personalAccessToken: req.header("figma_token"),
+            });
+
+            const imageData = await figma.getImage(req.params['file'], {
+                ids: req.params['node'],
+                format: "png",
+                scale: 1
+            });
+            cover = imageData.images[decodeURI(req.params['node'])];
+        } else {
+            cover = req.body['cover'];
         }
-        const imageData = await figma.getImage(req.params['file'], {
-            ids: req.params['node'],
-            format: "png",
-            scale: width > 0 ? (640 / width) : 1
-        });
 
         const notion = new Client({
             auth: req.header("notion_token")
@@ -137,7 +138,7 @@ const pushNode = async (req: Request, res: Response, next: NextFunction) => {
                     cover: {
                         type: "external",
                         external: {
-                            url: imageData.images[decodeURI(req.params['node'])]
+                            url: cover
                         }
                     },
                     properties: properties
@@ -159,7 +160,7 @@ const pushNode = async (req: Request, res: Response, next: NextFunction) => {
                             await notion.blocks.update({
                                 block_id: child.id,
                                 embed: {
-                                    url: imageData.images[decodeURI(req.params['node'])]
+                                    url: cover
                                 }
                             });
                         }
@@ -182,7 +183,7 @@ const pushNode = async (req: Request, res: Response, next: NextFunction) => {
                 cover: {
                     type: "external",
                     external: {
-                        url: imageData.images[decodeURI(req.params['node'])]
+                        url: cover
                     }
                 },
                 properties: properties,
@@ -190,7 +191,7 @@ const pushNode = async (req: Request, res: Response, next: NextFunction) => {
                     {
                         type: "embed",
                         embed: {
-                            url: imageData.images[decodeURI(req.params['node'])]
+                            url: cover
                         }
                     },
                     {
@@ -257,4 +258,51 @@ const deleteNode = async (req: Request, res: Response, next: NextFunction) => {
     }
 };
 
-export default { getNode, pushNode, deleteNode };
+const patchAll = async (req: Request, res: Response, next: NextFunction) => {
+    const notion = new Client({
+        auth: req.header("notion_token")
+    });
+    try {
+        const data = await notion.databases.query({
+            database_id: req.header("notion_database"),
+            page_size: 500
+        });
+        const figma = new Figma.Api({
+            personalAccessToken: req.header("figma_token"),
+        });
+        for (let node of data.results) {
+            const url: string = node['properties']['URL']['url'];
+            console.log(url);
+            if (url.startsWith("https://www.figma.com/file/") && url.concat("?node-id=")) {
+                //https://www.figma.com/file/P8dD309i1hqxNv2pjxhiNi/?node-id=750%3A32391
+                const file = url.slice(27, 27+22);
+                const node = decodeURIComponent(url.slice(59, url.length));
+
+                const nodeData = await figma.getFileNodes(file, [node]);
+
+                let width = 0;
+                for (let nodeKey in nodeData.nodes) {
+                    if (nodeData.nodes[nodeKey].document['absoluteBoundingBox']) {
+                        width = nodeData.nodes[nodeKey].document['absoluteBoundingBox'].width;
+                        break;
+                    }
+                }
+                const imageData = await figma.getImage(file, {
+                    ids: node,
+                    format: "png",
+                    scale: width > 0 ? (640 / width) : 1
+                });
+                console.log(imageData);
+            }
+        }
+        return res.status(200).json({
+            code: 200,
+            message: 'ok'
+        });
+    } catch (e) {
+        console.error(e);
+        return res.status(e.status ? e.status : 500).send(e.body);
+    }
+};
+
+export default { getNode, pushNode, deleteNode, patchAll };
