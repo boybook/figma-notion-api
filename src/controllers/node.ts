@@ -90,7 +90,9 @@ const pushNode = async (req: Request, res: Response, next: NextFunction) => {
             personalAccessToken: req.header("figma_token"),
         });
         const nodeData = await figma.getFileNodes(req.params['file'], [req.params['node']]);
-        console.log(nodeData);
+        for (let nodeDataKey in nodeData) {
+            console.log(nodeData[nodeDataKey]);
+        }
         const imageData = await figma.getImage(req.params['file'], {
             ids: req.params['node'],
             format: "png",
