@@ -191,27 +191,30 @@ const pushNode = async (req: Request, res: Response, next: NextFunction) => {
                 },
                 properties: properties,
                 children: [
-                    {
-                        type: "embed",
-                        embed: {
-                            url: cover
+                    cover.endsWith(".png") ?
+                        {
+                            type: "image",
+                            image: {
+                                type: "external",
+                                external: {
+                                    url: cover
+                                }
+                            }
                         }
-                    },
+                        :
+                        {
+                            type: "embed",
+                            embed: {
+                                url: cover
+                            }
+                        },
+
                     {
                         type: "embed",
                         embed: {
                             url: 'https://www.figma.com/embed?embed_host=notion&url=' + encodeURIComponent(url)
                         },
                     },
-                    // {
-                    //     type: "image",
-                    //     image: {
-                    //         type: "external",
-                    //         external: {
-                    //             url: imageData.images[decodeURI(req.params['node'])]
-                    //         }
-                    //     }
-                    // }
                 ]
             }));
             return res.status(200).json({
