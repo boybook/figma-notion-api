@@ -90,13 +90,15 @@ const pushNode = async (req: Request, res: Response, next: NextFunction) => {
             personalAccessToken: req.header("figma_token"),
         });
         const nodeData = await figma.getFileNodes(req.params['file'], [req.params['node']]);
+        let width = 0;
         for (let nodeDataKey in nodeData) {
-            console.log(nodeData[nodeDataKey]);
+            width = nodeData[nodeDataKey].absoluteBoundingBox.width;
+            break;
         }
         const imageData = await figma.getImage(req.params['file'], {
             ids: req.params['node'],
             format: "png",
-            scale: 1
+            scale: width > 0 ? (640 / width) : 1
         });
 
         const notion = new Client({
